@@ -1,0 +1,7 @@
+langgraph-supervisor
+langchain-anthropic
+langchain-community
+tavily-python
+python-dotenv
+pydantic
+langgraph
