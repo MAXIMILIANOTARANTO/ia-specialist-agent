@@ -1,7 +1,15 @@
-langgraph-supervisor
+langgraph
+langchain-core
 langchain-anthropic
+langchain-openai
+langchain-google-genai
+langchain-groq
 langchain-community
 tavily-python
 python-dotenv
 pydantic
-langgraph
+langgraph-checkpoint-sqlite
+langgraph-store-sqlite
+psycopg[binary]
+langgraph-checkpoint-postgres
+langgraph-store-postgres

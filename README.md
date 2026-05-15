@@ -1,22 +1,15 @@
-# 🤖 Agente Especialista en IAs - ia-specialist-agent
+# IA Specialist Agent
 
-Agente multi-especialista construido con **LangGraph** y **langgraph-supervisor** para dominar:
-- Inteligencias Artificiales y sistemas agenticos
-- Sistemas complejos y arquitecturas
-- Programación avanzada y clean code
-- Gestión de proyectos y procesos
+Agente multi-especialista en IAs, sistemas complejos, programación avanzada, gestión de proyectos y procesos computacionales.
 
-## 🚀 Características
+Construido con **LangGraph** + Supervisor Pattern.
 
-- **Supervisor inteligente** que coordina un equipo de especialistas
-- Roles especializados: Researcher, Architect, Coder, Reviewer
-- Fácil extensión y personalización
-- Soporte para Anthropic Claude (excelente en razonamiento)
-- Tools integradas: búsqueda web con Tavily
-- Listo para producción con memoria y human-in-the-loop
+## Nuevas características (actualizado)
+- **Soporte Multi-Modelos**: Usa Claude, Grok (xAI), GPT, Gemini, Groq, etc. mediante `init_chat_model`. Configurable por agente o global.
+- **Memoria Externa Optimizada**: Checkpointer (corto plazo) + Store (largo plazo con SQLite/Postgres). Reduce tokens dramáticamente recuperando solo información relevante + summaries.
+- **Deployment gratuito**: Instrucciones para Render, Koyeb, Railway, Vercel, Cloudflare Workers y Google Colab.
 
-## 📁 Estructura del proyecto
-
+## Estructura del proyecto
 ```
 ia-specialist-agent/
 ├── agents/
@@ -24,50 +17,78 @@ ia-specialist-agent/
 │   ├── architect.py
 │   ├── coder.py
 │   ├── reviewer.py
-├── __init__.py
+│   └── supervisor.py
+├── graph.py
+├── state.py
 ├── tools.py
+├── memory.py          # Nuevo: gestión de memoria externa
+├── config.py          # Config multi-modelo
 ├── main.py
 ├── requirements.txt
+├── README.md
 ├── .env.example
-├── .gitignore
-└── README.md
+└── .gitignore
 ```
 
-## 🚀 Instalación
+## Instalación y uso
+1. Clona el repo
+2. `python -m venv .venv && source .venv/bin/activate`
+3. `pip install -r requirements.txt`
+4. Copia `.env.example` a `.env` y agrega tus API keys (ANTHROPIC_API_KEY, OPENAI_API_KEY, etc. + TAVILY_API_KEY)
+5. `python main.py`
 
-```bash
-git clone https://github.com/MAXIMILIANOTARANTO/ia-specialist-agent.git
-cd ia-specialist-agent
+El Supervisor decide qué especialista usar y puede combinar varios.
 
-python -m venv .venv
-source .venv/bin/activate
+## Multi-Modelos
+Configura el modelo por defecto en `.env` o por agente:
+- `DEFAULT_MODEL=anthropic:claude-3-5-sonnet-20241022`
+- Soporta: anthropic, openai, google_genai, groq, etc.
+Usa `init_chat_model` para cambiar fácilmente entre proveedores sin cambiar código.
 
-pip install -r requirements.txt
+## Memoria Externa y Optimización de Tokens
+- **Corto plazo**: Checkpointer (SQLite o Postgres) → persiste el estado del hilo (thread).
+- **Largo plazo**: Store (SQLiteStore o PostgresStore) → guarda hechos clave, preferencias de usuario, contexto de proyectos.
+- **Optimización**: Antes de llamar a agentes, se recupera memoria relevante con búsqueda semántica. Se inyecta solo resumen + hechos clave en lugar de todo el historial → **ahorro masivo de tokens**.
+- Namespace por usuario/proyecto para aislamiento.
 
-cp .env.example .env
-# Edita .env con tus API keys
-```
+Para producción: Usa Postgres (Neon.tech o Render Postgres gratis).
 
-## 🔑 Configuración
+## Deployment en plataformas gratuitas (conectadas a GitHub)
 
-Necesitas:
-- **ANTHROPIC_API_KEY** (usa Claude 3.5 Sonnet o superior)
-- **TAVILY_API_KEY** (búsqueda web)
+### Recomendado: Render (ideal para agentes stateful como LangGraph)
+- Conecta tu repo de GitHub.
+- Deploy como Web Service o Background Worker.
+- Free tier: 750 horas/mes, suficiente para testing.
+- Para persistencia: Agrega Postgres gratuito de Render o Neon.
+- Auto-deploy en cada push.
 
-## 🎯 Uso
+### Koyeb
+- Excelente free tier + Sandboxes para ejecución segura de código Python/Node.
+- Perfecto para integrar tool de code execution en el agente.
+- Deploy desde GitHub en contenedores.
 
-```bash
-python main.py
-```
+### Railway
+- Créditos gratuitos iniciales.
+- Bueno para DBs y apps complejas.
 
-El Supervisor coordina a los especialistas según la consulta.
+### Vercel / Netlify
+- Serverless Functions (Node/Python).
+- Limitado para procesos largos (timeouts).
+- Bueno para APIs ligeras.
 
-## Roles
+### Cloudflare Workers
+- JS/TS principalmente, hasta 100k requests gratis/día.
+- GitHub integration automática.
 
-- **researcher**: Investiga papers, tendencias, documentación
-- **architect**: Diseña arquitecturas para sistemas complejos
-- **coder**: Escribe código limpio y profesional
-- **reviewer**: Revisa calidad, bugs y mejoras
+### Google Colab
+- Para desarrollo interactivo y testing con GPUs gratis.
+- Abre notebooks directamente desde el repo de GitHub.
 
----
-Proyecto creado para Maximiliano | 2026
+**Consejo para code execution**: Usa Koyeb Sandboxes o un REPL seguro en el tool del Coder para ejecutar código Python de forma aislada.
+
+## Próximos pasos
+- Agregar tool de code execution con Koyeb o similar.
+- Interfaz web (Streamlit/FastAPI).
+- RAG con knowledge base propia.
+
+Creado para Maximiliano - Especialista en sistemas complejos.
