@@ -1,36 +1,34 @@
-import os
+from graph import create_graph
+from config import get_llm
+from memory import get_checkpointer, get_store
 from dotenv import load_dotenv
+import os
+
 load_dotenv()
 
-if not os.getenv('ANTHROPIC_API_KEY'):
-    print('Configura ANTHROPIC_API_KEY en .env')
-    exit(1)
-
-from langgraph_supervisor import create_supervisor
-from langchain_anthropic import ChatAnthropic
-
-from tools import get_search_tool
-from agents.researcher import create_researcher_agent
-from agents.architect import create_architect_agent
-from agents.coder import create_coder_agent
-from agents.reviewer import create_reviewer_agent
-
-supervisor_llm = ChatAnthropic(model='claude-3-5-sonnet-20241022', temperature=0.1)
-search_tool = get_search_tool()
-shared_tools = [search_tool]
-
-researcher = create_researcher_agent(shared_tools)
-architect = create_architect_agent(shared_tools)
-coder = create_coder_agent(shared_tools)
-reviewer = create_reviewer_agent(shared_tools)
-
-supervisor_prompt = 'Eres el Supervisor de un equipo de especialistas en IAs y sistemas complejos. Delega tareas y coordina al researcher, architect, coder y reviewer segun la consulta del usuario.'
-
-workflow = create_supervisor([researcher, architect, coder, reviewer], model=supervisor_llm, prompt=supervisor_prompt)
-app = workflow.compile()
-
-if __name__ == '__main__':
-    print('Agente Especialista en IAs iniciado.')
-    query = input('Tu consulta: ')
-    result = app.invoke({'messages': [{'role': 'user', 'content': query}]})
-    print(result['messages'][-1].content)
+if __name__ == "__main__":
+    print("Iniciando IA Specialist Agent con multi-modelo y memoria externa...")
+    
+    # Configuración
+    checkpointer = get_checkpointer()
+    store = get_store()
+    
+    # Crear grafo con supervisor y especialistas
+    graph = create_graph(checkpointer=checkpointer, store=store)
+    
+    # Thread ID para memoria por sesión/usuario
+    config = {"configurable": {"thread_id": "user_001_project_alpha"}}
+    
+    print("\nAgente listo. Escribe tu consulta (o 'salir' para terminar):")
+    
+    while True:
+        user_input = input(">> ")
+        if user_input.lower() in ["salir", "exit", "quit"]:
+            break
+        
+        # Invocar con memoria
+        result = graph.invoke({"messages": [{"role": "user", "content": user_input}]}, config=config)
+        
+        print("\nRespuesta del Supervisor / Equipo:")
+        print(result.get("final_response", result))
+        print("\n--- Memoria actualizada (tokens optimizados) ---")
