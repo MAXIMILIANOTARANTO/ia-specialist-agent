@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IlluminatorProtocolSchema",
+  "version": "1.0.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Version of the communication protocol."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Unique identifier for the task."
+    },
+    "parent_task_id": {
+      "type": ["string", "null"],
+      "description": "ID of the parent task (for hierarchical tasks)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sender": {
+      "type": "string",
+      "enum": ["grok_nucleus", "gemini_agent", "claude_agent", "system"]
+    },
+    "receiver": {
+      "type": "string",
+      "enum": ["grok_nucleus", "gemini_agent", "claude_agent", "broadcast"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "in_progress", "completed", "failed", "warning"]
+    },
+    "payload": {
+      "type": "object"
+    },
+    "diagnostics": {
+      "type": "object",
+      "properties": {
+        "errors": { "type": "array", "items": { "type": "string" } },
+        "warnings": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["errors", "warnings"]
+    },
+    "feedback_to_nucleus": {
+      "type": "object",
+      "properties": {
+        "token_tier": { "type": "string", "enum": ["Bajo", "Medio", "Alto"] },
+        "suggested_next_action": { "type": "string" },
+        "requires_human_intervention": { "type": "boolean" }
+      },
+      "required": ["token_tier", "suggested_next_action"]
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_id",
+    "sender",
+    "receiver",
+    "status",
+    "payload",
+    "diagnostics",
+    "feedback_to_nucleus"
+  ]
+}
